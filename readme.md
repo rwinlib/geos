@@ -1,7 +1,7 @@
 GEOS 3.5.0. Compiled with:
 
 	export CC="gcc -02"
-	export CXX="g++ 02"
+	export CXX="g++ -02"
 	../geos-3.5.0/configure --enable-static --enable-shared --disable-inline
 
 We must disable inline, otherwise static linking does not work for C++!
