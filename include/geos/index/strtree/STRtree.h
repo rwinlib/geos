@@ -7,7 +7,7 @@
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************
@@ -20,6 +20,8 @@
 #define GEOS_INDEX_STRTREE_STRTREE_H
 
 #include <geos/export.h>
+#include <geos/index/strtree/ItemDistance.h>
+#include <geos/index/strtree/BoundablePair.h>
 #include <geos/index/strtree/AbstractSTRtree.h> // for inheritance
 #include <geos/index/SpatialIndex.h> // for inheritance
 #include <geos/geom/Envelope.h> // for inlines
@@ -33,8 +35,8 @@
 
 // Forward declarations
 namespace geos {
-	namespace index { 
-		namespace strtree { 
+	namespace index {
+		namespace strtree {
 			class Boundable;
 		}
 	}
@@ -46,17 +48,17 @@ namespace strtree { // geos::index::strtree
 
 /**
  * \brief
- * A query-only R-tree created using the Sort-Tile-Recursive (STR) algorithm. 
- * For two-dimensional spatial data. 
+ * A query-only R-tree created using the Sort-Tile-Recursive (STR) algorithm.
+ * For two-dimensional spatial data.
  *
  * The STR packed R-tree is simple to implement and maximizes space
  * utilization; that is, as many leaves as possible are filled to capacity.
  * Overlap between nodes is far less than in a basic R-tree. However, once the
  * tree has been built (explicitly or on the first call to #query), items may
- * not be added or removed. 
- * 
+ * not be added or removed.
+ *
  * Described in: P. Rigaux, Michel Scholl and Agnes Voisard. Spatial
- * Databases With Application To GIS. Morgan Kaufmann, San Francisco, 2002. 
+ * Databases With Application To GIS. Morgan Kaufmann, San Francisco, 2002.
  *
  */
 class GEOS_DLL STRtree: public AbstractSTRtree, public SpatialIndex
@@ -67,7 +69,7 @@ using AbstractSTRtree::query;
 private:
 	class GEOS_DLL STRIntersectsOp: public AbstractSTRtree::IntersectsOp {
 		public:
-			bool intersects(const void* aBounds, const void* bBounds);
+			bool intersects(const void* aBounds, const void* bBounds) override;
 	};
 
 	/**
@@ -77,15 +79,15 @@ private:
 	 * group them into runs of size M (the node capacity). For each run, creates
 	 * a new (parent) node.
 	 */
-	std::auto_ptr<BoundableList> createParentBoundables(BoundableList* childBoundables, int newLevel);
+	std::unique_ptr<BoundableList> createParentBoundables(BoundableList* childBoundables, int newLevel) override;
 
-	std::auto_ptr<BoundableList> createParentBoundablesFromVerticalSlices(std::vector<BoundableList*>* verticalSlices, int newLevel);
+	std::unique_ptr<BoundableList> createParentBoundablesFromVerticalSlices(std::vector<BoundableList*>* verticalSlices, int newLevel);
 
 	STRIntersectsOp intersectsOp;
 
-	std::auto_ptr<BoundableList> sortBoundables(const BoundableList* input);
+	std::unique_ptr<BoundableList> sortBoundables(const BoundableList* input) override;
 
-	std::auto_ptr<BoundableList> createParentBoundablesFromVerticalSlice(
+	std::unique_ptr<BoundableList> createParentBoundablesFromVerticalSlice(
 			BoundableList* childBoundables,
 			int newLevel);
 
@@ -101,15 +103,15 @@ private:
 
 protected:
 
-	AbstractNode* createNode(int level);
-	
-	IntersectsOp* getIntersectsOp() {
+	AbstractNode* createNode(int level) override;
+
+	IntersectsOp* getIntersectsOp() override {
 		return &intersectsOp;
 	}
 
 public:
 
-	~STRtree();
+	~STRtree() override;
 
 	/**
 	 * Constructs an STRtree with the given maximum number of child nodes that
@@ -117,7 +119,7 @@ public:
 	 */
 	STRtree(std::size_t nodeCapacity=10);
 
-	void insert(const geom::Envelope *itemEnv,void* item);
+	void insert(const geom::Envelope *itemEnv,void* item) override;
 
 	//static double centreX(const geom::Envelope *e);
 
@@ -129,17 +131,24 @@ public:
 		return STRtree::avg(e->getMinY(), e->getMaxY());
 	}
 
-	void query(const geom::Envelope *searchEnv, std::vector<void*>& matches) {
+	void query(const geom::Envelope *searchEnv, std::vector<void*>& matches) override {
 		AbstractSTRtree::query(searchEnv, matches);
 	}
 
-	void query(const geom::Envelope *searchEnv, ItemVisitor& visitor) {
+	void query(const geom::Envelope *searchEnv, ItemVisitor& visitor) override {
 		return AbstractSTRtree::query(searchEnv, visitor);
 	}
 
-	bool remove(const geom::Envelope *itemEnv, void* item) {
+	const void* nearestNeighbour(const geom::Envelope *env, const void* item, ItemDistance* itemDist);
+	std::pair<const void*, const void*> nearestNeighbour(BoundablePair* initBndPair);
+	std::pair<const void*, const void*> nearestNeighbour(ItemDistance* itemDist);
+	std::pair<const void*, const void*> nearestNeighbour(BoundablePair* initBndPair, double maxDistance);
+	std::pair<const void*, const void*> nearestNeighbour(STRtree *tree, ItemDistance *itemDist);
+
+	bool remove(const geom::Envelope *itemEnv, void* item) override {
 		return AbstractSTRtree::remove(itemEnv, item);
 	}
+
 };
 
 } // namespace geos::index::strtree

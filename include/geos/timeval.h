@@ -7,10 +7,10 @@
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
- * Note: This code is in the public domain, see 
+ * Note: This code is in the public domain, see
  *       http://wyw.dcweb.cn/time.htm
  *
  **********************************************************************/
@@ -18,8 +18,20 @@
 #ifndef GEOS_TIMEVAL_H
 #define GEOS_TIMEVAL_H
 
+#if !defined(_WIN32)
+#error This header is dedicated to Windows platform only
+#endif
+
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#ifndef STRICT
+#define STRICT
 #endif
 
 #include <winsock2.h>
@@ -97,9 +109,9 @@ __inline int gettimeofday(struct timeval *tv, struct timezone *tz)
     }
 
     if (tz)
-    {   
+    {
         GetTimeZoneInformation(&tzi);
-		
+
         tz->tz_minuteswest = tzi.Bias;
 		if (tzi.StandardDate.wMonth != 0)
         {

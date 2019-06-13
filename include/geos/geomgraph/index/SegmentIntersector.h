@@ -8,7 +8,7 @@
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************/
@@ -56,6 +56,10 @@ private:
 
 	bool hasProperInterior;
 
+	bool isDone;
+
+	bool isDoneWhenProperInt;
+
 	// the proper intersection point found
 	geom::Coordinate properIntersectionPoint;
 
@@ -99,6 +103,8 @@ public:
 		hasIntersectionVar(false),
 		hasProper(false),
 		hasProperInterior(false),
+		isDone(false),
+		isDoneWhenProperInt(false),
 		li(newLi),
 		includeProper(newIncludeProper),
 		recordIsolated(newRecordIsolated),
@@ -122,6 +128,10 @@ public:
 	bool hasProperInteriorIntersection();
 
 	void addIntersections(Edge *e0, int segIndex0, Edge *e1, int segIndex1);
+
+	void setIsDoneIfProperInt(bool isDoneWhenProperInt);
+
+	bool getIsDone();
 
 };
 

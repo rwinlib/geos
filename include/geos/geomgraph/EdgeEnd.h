@@ -3,13 +3,13 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
- * Copyright (C) 2011 Sandro Santilli <strk@keybit.net>
+ * Copyright (C) 2011 Sandro Santilli <strk@kbt.io>
  * Copyright (C) 2005-2006 Refractions Research Inc.
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************
@@ -65,7 +65,7 @@ public:
 
 	/**
 	 * NOTES:
-	 *  - Copies the given Label 
+	 *  - Copies the given Label
 	 *  - keeps a pointer to given Edge, make sure it's
 	 *    not deleted before the EdgeEnd.
 	 *  - copies given Coordinates (maybe we should avoid that)
@@ -92,6 +92,8 @@ public:
 
 	virtual geom::Coordinate& getCoordinate();
 
+	const geom::Coordinate& getCoordinate() const { return p0; }
+
 	virtual geom::Coordinate& getDirectedCoordinate();
 
 	virtual int getQuadrant();
@@ -108,9 +110,9 @@ public:
 
 	/**
 	 * Implements the total order relation:
-	 * 
+	 *
 	 *    a has a greater angle with the positive x-axis than b
-	 * 
+	 *
 	 * Using the obvious algorithm of simply computing the angle
 	 * is not robust, since the angle calculation is obviously
 	 * susceptible to roundoff.
@@ -126,7 +128,7 @@ public:
 
 	virtual void computeLabel(const algorithm::BoundaryNodeRule& bnr);
 
-	virtual std::string print();
+	virtual std::string print() const;
 
 protected:
 
@@ -142,13 +144,13 @@ protected:
 private:
 
 	/// the node this edge end originates at
-	Node* node;         
+	Node* node;
 
 	/// points of initial line segment. FIXME: do we need a copy here ?
-	geom::Coordinate p0, p1; 
+	geom::Coordinate p0, p1;
 
 	/// the direction vector for this edge from its starting point
-	double dx, dy;     
+	double dx, dy;
 
 	int quadrant;
 };

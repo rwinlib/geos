@@ -3,13 +3,13 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
- * Copyright (C) 2011 Sandro Santilli <strk@keybit.net>
+ * Copyright (C) 2011 Sandro Santilli <strk@kbt.io>
  * Copyright (C) 2005-2006 Refractions Research Inc.
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************
@@ -66,6 +66,7 @@ public:
 	typedef std::set<EdgeEnd *, EdgeEndLT> container;
 
 	typedef container::iterator iterator;
+	typedef container::const_iterator const_iterator;
 	typedef container::reverse_iterator reverse_iterator;
 
 	EdgeEndStar();
@@ -86,6 +87,8 @@ public:
 	 */
 	virtual geom::Coordinate& getCoordinate();
 
+	const geom::Coordinate& getCoordinate() const;
+
 	virtual std::size_t getDegree();
 
 	virtual iterator begin();
@@ -96,8 +99,11 @@ public:
 
 	virtual reverse_iterator rend();
 
-	virtual container &getEdges();
+	virtual const_iterator begin() const { return edgeMap.begin(); }
 
+	virtual const_iterator end() const { return edgeMap.end(); }
+
+	virtual container &getEdges();
 
 	virtual EdgeEnd* getNextCW(EdgeEnd *ee);
 
@@ -112,7 +118,7 @@ public:
 	//virtual int findIndex(EdgeEnd *eSearch);
 	virtual iterator find(EdgeEnd *eSearch);
 
-	virtual std::string print();
+	virtual std::string print() const;
 
 protected:
 
@@ -131,7 +137,7 @@ private:
 
 	virtual int getLocation(int geomIndex,
 		const geom::Coordinate& p,
-		std::vector<GeometryGraph*> *geom); 
+		std::vector<GeometryGraph*> *geom);
 
 	/** \brief
 	 * The location of the point for this star in
@@ -187,6 +193,7 @@ EdgeEndStar::find(EdgeEnd *eSearch)
 	return edgeMap.find(eSearch);
 }
 
+std::ostream& operator<< (std::ostream&, const EdgeEndStar&);
 
 } // namespace geos.geomgraph
 } // namespace geos

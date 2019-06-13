@@ -3,12 +3,12 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
- * Copyright (C) 2011 Sandro Santilli <strk@keybit.net>
+ * Copyright (C) 2011 Sandro Santilli <strk@kbt.io>
  * Copyright (C) 2006 Refractions Research Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  **********************************************************************
@@ -23,10 +23,10 @@
 
 #include <geos/export.h>
 #include <geos/geom/Coordinate.h> // destructor visibility for vector
-#include <geos/geom/Geometry.h> // destructor visibility for auto_ptr
-#include <geos/geom/CoordinateSequence.h> // destructor visibility for auto_ptr
+#include <geos/geom/Geometry.h> // destructor visibility for unique_ptr
+#include <geos/geom/CoordinateSequence.h> // destructor visibility for unique_ptr
 
-#include <memory> // for auto_ptr
+#include <memory> // for unique_ptr
 #include <vector>
 
 // Forward declarations
@@ -66,14 +66,14 @@ namespace util { // geos.geom.util
  * the parent geometries types change appropriately to maintain valid structure.
  * Subclasses will override whichever <code>transformX</code> methods
  * they need to to handle particular Geometry types.
- * 
+ *
  * A typically usage would be a transformation that may transform Polygons into
  * Polygons, LineStrings
  * or Points.  This class would likely need to override the
  * {@link transformMultiPolygon} method to ensure that if input Polygons
  * change type the result is a GeometryCollection,
  * not a MultiPolygon
- * 
+ *
  * The default behaviour of this class is to simply recursively transform
  * each Geometry component into an identical object by copying.
  *
@@ -97,7 +97,9 @@ public:
 
 	virtual ~GeometryTransformer();
 
-	std::auto_ptr<Geometry> transform(const Geometry* nInputGeom);
+	std::unique_ptr<Geometry> transform(const Geometry* nInputGeom);
+
+	void setSkipTransformedInvalidInteriorRings(bool b);
 
 protected:
 
@@ -112,42 +114,42 @@ protected:
 	 *
 	 * [final]
 	 */
-	CoordinateSequence::AutoPtr createCoordinateSequence(
-			std::auto_ptr< std::vector<Coordinate> > coords);
+	CoordinateSequence::Ptr createCoordinateSequence(
+			std::unique_ptr< std::vector<Coordinate> > coords);
 
-	virtual CoordinateSequence::AutoPtr transformCoordinates(
+	virtual CoordinateSequence::Ptr transformCoordinates(
 			const CoordinateSequence* coords,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformPoint(
+	virtual Geometry::Ptr transformPoint(
 			const Point* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformMultiPoint(
+	virtual Geometry::Ptr transformMultiPoint(
 			const MultiPoint* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformLinearRing(
+	virtual Geometry::Ptr transformLinearRing(
 			const LinearRing* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformLineString(
+	virtual Geometry::Ptr transformLineString(
 			const LineString* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformMultiLineString(
+	virtual Geometry::Ptr transformMultiLineString(
 			const MultiLineString* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformPolygon(
+	virtual Geometry::Ptr transformPolygon(
 			const Polygon* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformMultiPolygon(
+	virtual Geometry::Ptr transformMultiPolygon(
 			const MultiPolygon* geom,
 			const Geometry* parent);
 
-	virtual Geometry::AutoPtr transformGeometryCollection(
+	virtual Geometry::Ptr transformGeometryCollection(
 			const GeometryCollection* geom,
 			const Geometry* parent);
 
@@ -178,9 +180,14 @@ private:
 	 */
 	bool preserveType;
 
-    // Declare type as noncopyable
-    GeometryTransformer(const GeometryTransformer& other);
-    GeometryTransformer& operator=(const GeometryTransformer& rhs);
+	/**
+	 * <code>true</code> if transformed invalid interior rings should be skipped
+	 */
+	bool skipTransformedInvalidInteriorRings;
+
+	// Declare type as noncopyable
+	GeometryTransformer(const GeometryTransformer& other) = delete;
+	GeometryTransformer& operator=(const GeometryTransformer& rhs) = delete;
 };
 
 

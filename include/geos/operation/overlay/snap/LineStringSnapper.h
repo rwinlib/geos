@@ -3,12 +3,12 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
- * Copyright (C) 2009-2010  Sandro Santilli <strk@keybit.net>
+ * Copyright (C) 2009-2010  Sandro Santilli <strk@kbt.io>
  * Copyright (C) 2006 Refractions Research Inc.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Public Licence as published
- * by the Free Software Foundation. 
+ * by the Free Software Foundation.
  * See the COPYING file for more information.
  *
  ***********************************************************************
@@ -28,7 +28,7 @@
 
 // Forward declarations
 namespace geos {
-	namespace geom { 
+	namespace geom {
 		//class PrecisionModel;
 		//class CoordinateSequence;
 		class CoordinateList;
@@ -71,7 +71,7 @@ public:
 	}
 
 	// Snap points are assumed to be all distinct points (a set would be better, uh ?)
-	std::auto_ptr<geom::Coordinate::Vect> snapTo(const geom::Coordinate::ConstVect& snapPts);
+	std::unique_ptr<geom::Coordinate::Vect> snapTo(const geom::Coordinate::ConstVect& snapPts);
 
 	void setAllowSnappingToSourceVertices(bool allow) {
 		allowSnappingToSourceVertices = allow;
@@ -102,7 +102,7 @@ private:
    * Source segments are "cracked" at a snap vertex.
    * A single input segment may be snapped several times
    * to different snap vertices.
-   * 
+   *
    * For each distinct snap vertex, at most one source segment
    * is snapped to.  This prevents "cracking" multiple segments
    * at the same point, which would likely cause
@@ -152,8 +152,8 @@ private:
 			geom::CoordinateList::iterator too_far);
 
     // Declare type as noncopyable
-    LineStringSnapper(const LineStringSnapper& other);
-    LineStringSnapper& operator=(const LineStringSnapper& rhs);
+    LineStringSnapper(const LineStringSnapper& other) = delete;
+    LineStringSnapper& operator=(const LineStringSnapper& rhs) = delete;
 };
 
 

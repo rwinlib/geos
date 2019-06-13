@@ -12,7 +12,7 @@
 #define HAVE_LONG_LONG_INT_64 1
 
 /* Set to 1 if you have ieeefp.h */
-/* #undef HAVE_IEEEFP_H */
+#define HAVE_IEEEFP_H 1
 
 /* Has finite */
 #define HAVE_FINITE 1
@@ -21,7 +21,7 @@
 #define HAVE_ISFINITE 1
 
 /* Has isnan */
-/* #undef HAVE_ISNAN */
+#define HAVE_ISNAN 1
 
 #ifdef HAVE_IEEEFP_H
 extern "C"
@@ -39,7 +39,7 @@ extern "C"
 
 #if defined(__GNUC__) && defined(_WIN32)
 /* For MingW the appropriate definitions are included in
- math.h and float.h but the definitions in 
+ math.h and float.h but the definitions in
  math.h are only included if __STRICT_ANSI__
  is not defined.  Since GEOS is compiled with -ansi that
  means those definitions are not available. */
@@ -78,7 +78,7 @@ extern "C"
 # define FINITE(x) (finite(x))
 #else
 # if defined(_MSC_VER)
-#  define FINITE(x) _finite(static_cast<double>(x))    
+#  define FINITE(x) _finite(static_cast<double>(x))
 # elif defined(__hpux__) && defined(__ia64__)
 #  define FINITE(x) (_Isfinite(x))
 # else
@@ -87,7 +87,7 @@ extern "C"
 #endif
 
 #if defined(HAVE_ISNAN)
-# define ISNAN(x) (isnan(x))
+# define ISNAN(x) (std::isnan(x))
 #else
 # if defined(_MSC_VER)
 #  define ISNAN(x) _isnan(x)
