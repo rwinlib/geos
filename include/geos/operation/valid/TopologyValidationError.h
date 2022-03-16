@@ -33,40 +33,41 @@ namespace operation { // geos::operation
 namespace valid { // geos::operation::valid
 
 /** \brief
- * Contains information about the nature and location of a {@link Geometry}
+ * Contains information about the nature and location of a geom::Geometry
  * validation error
  *
  */
 class GEOS_DLL TopologyValidationError {
 public:
 
-	enum errorEnum {
-		eError,
-		eRepeatedPoint,
-		eHoleOutsideShell,
-		eNestedHoles,
-		eDisconnectedInterior,
-		eSelfIntersection,
-		eRingSelfIntersection,
-		eNestedShells,
-		eDuplicatedRings,
-		eTooFewPoints,
-		eInvalidCoordinate,
-		eRingNotClosed
-	};
+    enum errorEnum {
+        eError,
+        eRepeatedPoint,
+        eHoleOutsideShell,
+        eNestedHoles,
+        eDisconnectedInterior,
+        eSelfIntersection,
+        eRingSelfIntersection,
+        eNestedShells,
+        eDuplicatedRings,
+        eTooFewPoints,
+        eInvalidCoordinate,
+        eRingNotClosed,
+        oNoInvalidIntersection = -1
+    };
 
-	TopologyValidationError(int newErrorType, const geom::Coordinate& newPt);
-	TopologyValidationError(int newErrorType);
-	geom::Coordinate& getCoordinate();
-	std::string getMessage();
-	int getErrorType();
-	std::string toString();
+    TopologyValidationError(int newErrorType, const geom::Coordinate& newPt);
+    TopologyValidationError(int newErrorType);
+    const geom::Coordinate& getCoordinate() const;
+    std::string getMessage() const;
+    int getErrorType() const;
+    std::string toString() const;
 
 private:
-	// Used const char* to reduce dynamic allocations
-	static const char* errMsg[];
-	int errorType;
-	geom::Coordinate pt;
+    // Used const char* to reduce dynamic allocations
+    static const char* errMsg[];
+    int errorType;
+    const geom::Coordinate pt;
 };
 
 

@@ -23,35 +23,40 @@
 
 // Forward declarations
 namespace geos {
-	namespace geomgraph {
-		class Edge;
-		namespace index {
-			class SegmentIntersector;
-		}
-	}
+namespace geomgraph {
+class Edge;
+namespace index {
+class SegmentIntersector;
+}
+}
 }
 
 namespace geos {
 namespace geomgraph { // geos::geomgraph
 namespace index { // geos::geomgraph::index
 
+/// \brief Finds all intersections in one or two sets of edges, using the
+/// straightforward method of comparing all segments.
+///
+/// \note This algorithm is too slow for production use, but is useful for
+/// testing purposes.
 class GEOS_DLL SimpleEdgeSetIntersector: public EdgeSetIntersector {
 
 public:
 
-	SimpleEdgeSetIntersector();
+    SimpleEdgeSetIntersector();
 
-	void computeIntersections(std::vector<Edge*> *edges,
-			SegmentIntersector *si, bool testAllSegments) override;
+    void computeIntersections(std::vector<Edge*>* edges,
+                              SegmentIntersector* si, bool testAllSegments) override;
 
-	void computeIntersections(std::vector<Edge*> *edges0,
-			std::vector<Edge*> *edges1, SegmentIntersector *si) override;
+    void computeIntersections(std::vector<Edge*>* edges0,
+                              std::vector<Edge*>* edges1, SegmentIntersector* si) override;
 
 private:
 
-	int nOverlaps;
+    int nOverlaps;
 
-	void computeIntersects(Edge *e0, Edge *e1, SegmentIntersector *si);
+    void computeIntersects(Edge* e0, Edge* e1, SegmentIntersector* si);
 };
 
 } // namespace geos.geomgraph.index

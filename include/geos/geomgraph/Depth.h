@@ -22,44 +22,51 @@
 #define GEOS_GEOMGRAPH_DEPTH_H
 
 #include <geos/export.h>
+#include <geos/geom/Location.h>
 #include <string>
 
 #include <geos/inline.h>
 
 // Forward declarations
 namespace geos {
-	namespace geomgraph {
-		class Label;
-	}
+namespace geomgraph {
+class Label;
+}
 }
 
 namespace geos {
 namespace geomgraph { // geos.geomgraph
 
+/// \brief A Depth object records the topological depth of the sides of an Edge
+/// for up to two Geometries.
 class GEOS_DLL Depth {
 public:
-	static int depthAtLocation(int location);
-	Depth();
-	virtual ~Depth(); // FIXME: shoudn't be virtual!
-	int getDepth(int geomIndex,int posIndex) const;
-	void setDepth(int geomIndex,int posIndex,int depthValue);
-	int getLocation(int geomIndex,int posIndex) const;
-	void add(int geomIndex,int posIndex,int location);
-	bool isNull() const;
-	bool isNull(int geomIndex) const;
-	bool isNull(int geomIndex, int posIndex) const;
-	int getDelta(int geomIndex) const;
-	void normalize();
-	void add(const Label& lbl);
-	std::string toString() const;
+    static int depthAtLocation(geom::Location location);
+    Depth();
+    virtual ~Depth() = default; // FIXME: shouldn't be virtual!
+    int getDepth(int geomIndex, int posIndex) const;
+    void setDepth(int geomIndex, int posIndex, int depthValue);
+    geom::Location getLocation(int geomIndex, int posIndex) const;
+    void add(int geomIndex, int posIndex, geom::Location location);
+    bool isNull() const;
+    bool isNull(uint8_t geomIndex) const;
+    bool isNull(uint8_t geomIndex, uint8_t posIndex) const;
+    int getDelta(int geomIndex) const;
+    void normalize();
+    void add(const Label& lbl);
+    std::string toString() const;
 private:
-	enum {
-		NULL_VALUE=-1 //Replaces NULL
-	};
-	int depth[2][3];
+    enum {
+        NULL_VALUE = -1 //Replaces NULL
+    };
+    int depth[2][3];
 };
 
 } // namespace geos.geomgraph
 } // namespace geos
+
+#ifdef GEOS_INLINE
+# include "geos/geomgraph/Depth.inl"
+#endif
 
 #endif // ifndef GEOS_GEOMGRAPH_DEPTH_H

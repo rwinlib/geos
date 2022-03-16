@@ -3,6 +3,7 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
+ * Copyright (C) 2020 Paul Ramsey <pramsey@cleverelephant.ca>
  * Copyright (C) 2011 Sandro Santilli <strk@kbt.io>
  * Copyright (C) 2006 Refractions Research Inc.
  * Copyright (C) 2001-2002 Vivid Solutions Inc.
@@ -22,6 +23,7 @@
 #ifndef GEOS_NODING_NODEDSEGMENTSTRING_H
 #define GEOS_NODING_NODEDSEGMENTSTRING_H
 
+#include <geos/inline.h>
 #include <geos/export.h>
 #include <geos/noding/NodableSegmentString.h> // for inheritance
 #include <geos/geom/CoordinateSequence.h> // for inlines
@@ -29,7 +31,6 @@
 #include <geos/noding/SegmentNode.h>
 #include <geos/noding/SegmentNodeList.h>
 #include <geos/noding/SegmentString.h>
-//#include <geos/noding/Octant.h>
 #include <geos/geom/Coordinate.h>
 
 #include <cstddef>
@@ -46,7 +47,7 @@ namespace noding { // geos::noding
  * Represents a list of contiguous line segments,
  * and supports noding the segments.
  *
- * The line segments are represented by an array of {@link Coordinate}s.
+ * The line segments are represented by an array of [Coordinates](@ref geom::Coordinate).
  * Intended to optimize the noding of contiguous segments by
  * reducing the number of allocated objects.
  * SegmentStrings can carry a context object, which is useful
@@ -54,155 +55,129 @@ namespace noding { // geos::noding
  * All noded substrings are initialized with the same context object.
  *
  */
-class GEOS_DLL NodedSegmentString : public NodableSegmentString
-{
+class GEOS_DLL NodedSegmentString : public NodableSegmentString {
 public:
 
     // TODO: provide a templated method using an output iterator
     template <class II>
-    static void getNodedSubstrings(II from, II too_far,
-        SegmentString::NonConstVect* resultEdgelist)
+    static void
+    getNodedSubstrings(II from, II too_far,
+                       SegmentString::NonConstVect* resultEdgelist)
     {
-        for (II i=from; i != too_far; ++i)
-        {
-            NodedSegmentString * nss = dynamic_cast<NodedSegmentString*>(*i);
+        for(II i = from; i != too_far; ++i) {
+            NodedSegmentString* nss = dynamic_cast<NodedSegmentString*>(*i);
             assert(nss);
             nss->getNodeList().addSplitEdges(resultEdgelist);
         }
     }
 
     template <class C>
-    static void getNodedSubstrings(C *segStrings,
-        SegmentString::NonConstVect* resultEdgelist)
+    static void
+    getNodedSubstrings(C* segStrings,
+                       SegmentString::NonConstVect* resultEdgelist)
     {
         getNodedSubstrings(segStrings->begin(), segStrings->end(), resultEdgelist);
     }
 
-	static void getNodedSubstrings(const SegmentString::NonConstVect& segStrings,
-			SegmentString::NonConstVect* resultEdgeList);
+    static void getNodedSubstrings(const SegmentString::NonConstVect& segStrings,
+                                   SegmentString::NonConstVect* resultEdgeList);
 
-	/// Returns allocated object
-	static SegmentString::NonConstVect* getNodedSubstrings(
-			const SegmentString::NonConstVect& segStrings);
+    /// Returns allocated object
+    static SegmentString::NonConstVect* getNodedSubstrings(
+        const SegmentString::NonConstVect& segStrings);
+
+    std::vector<geom::Coordinate> getNodedCoordinates();
 
 
-	/**
-	 * Creates a new segment string from a list of vertices.
-	 *
-	 * @param newPts CoordinateSequence representing the string,
-	 *               ownership transferred.
-	 *
-	 * @param data the user-defined data of this segment string
-	 *             (may be null)
-	 */
-    NodedSegmentString(geom::CoordinateSequence *newPts, const void* newContext)
+    /** \brief
+     * Creates a new segment string from a list of vertices.
+     *
+     * @param newPts CoordinateSequence representing the string,
+     *               ownership transferred.
+     *
+     * @param newContext the user-defined data of this segment string
+     *                   (may be null)
+     */
+    NodedSegmentString(geom::CoordinateSequence* newPts, const void* newContext)
         : NodableSegmentString(newContext)
         , nodeList(this)
         , pts(newPts)
     {}
 
-	~NodedSegmentString() override
-	{
-		delete pts;
-	}
+    NodedSegmentString(SegmentString* ss)
+        : NodableSegmentString(ss->getData())
+        , nodeList(this)
+        , pts(ss->getCoordinates()->clone())
+    {}
 
-	/**
-	 * Adds an intersection node for a given point and segment to this segment string.
-	 * If an intersection already exists for this exact location, the existing
-	 * node will be returned.
-	 *
-	 * @param intPt the location of the intersection
-	 * @param segmentIndex the index of the segment containing the intersection
-	 * @return the intersection node for the point
-	 */
-	SegmentNode* addIntersectionNode( geom::Coordinate * intPt, std::size_t segmentIndex)
-	{
-		std::size_t normalizedSegmentIndex = segmentIndex;
+    ~NodedSegmentString() override = default;
 
-		// normalize the intersection point location
-		std::size_t nextSegIndex = normalizedSegmentIndex + 1;
-		if (nextSegIndex < size())
-		{
-			geom::Coordinate const& nextPt =
-                getCoordinate(static_cast<unsigned int>(nextSegIndex));
+    SegmentNodeList& getNodeList();
 
-			// Normalize segment index if intPt falls on vertex
-			// The check for point equality is 2D only - Z values are ignored
-			if ( intPt->equals2D( nextPt ))
-			{
-				normalizedSegmentIndex = nextSegIndex;
-			}
-		}
+    const SegmentNodeList& getNodeList() const;
 
-		// Add the intersection point to edge intersection list.
-		SegmentNode * ei = getNodeList().add( *intPt, normalizedSegmentIndex);
-		return ei;
-	}
+    size_t
+    size() const override
+    {
+        return pts->size();
+    }
 
-	SegmentNodeList& getNodeList();
+    const geom::Coordinate& getCoordinate(std::size_t i) const override;
 
-	const SegmentNodeList& getNodeList() const;
+    geom::CoordinateSequence* getCoordinates() const override;
+    geom::CoordinateSequence* releaseCoordinates();
 
-	unsigned int size() const override
-	{
-		return static_cast<unsigned int>(pts->size());
-	}
+    bool isClosed() const override;
 
-	const geom::Coordinate& getCoordinate(unsigned int i) const override;
-
-	geom::CoordinateSequence* getCoordinates() const override;
-
-	bool isClosed() const override;
-
-	std::ostream& print(std::ostream& os) const override;
+    std::ostream& print(std::ostream& os) const override;
 
 
-	/** \brief
-	 * Gets the octant of the segment starting at vertex index.
-	 *
-	 * @param index the index of the vertex starting the segment.
-	 *        Must not be the last index in the vertex list
-	 * @return the octant of the segment at the vertex
-	 */
-	int getSegmentOctant(unsigned int index) const;
+    /** \brief
+     * Gets the octant of the segment starting at vertex index.
+     *
+     * @param index the index of the vertex starting the segment.
+     *              Must not be the last index in the vertex list
+     * @return the octant of the segment at the vertex
+     */
+    int getSegmentOctant(std::size_t index) const;
 
-	/** \brief
-	 * Add {SegmentNode}s for one or both
-	 * intersections found for a segment of an edge to the edge
-	 * intersection list.
-	 */
-	void addIntersections(algorithm::LineIntersector *li,
-			unsigned int segmentIndex, int geomIndex);
+    /** \brief
+     * Add {@link SegmentNode}s for one or both
+     * intersections found for a segment of an edge to the edge
+     * intersection list.
+     */
+    void addIntersections(algorithm::LineIntersector* li,
+                          std::size_t segmentIndex, std::size_t geomIndex);
 
-	/** \brief
-	 * Add an SegmentNode for intersection intIndex.
-	 *
-	 * An intersection that falls exactly on a vertex
-	 * of the SegmentString is normalized
-	 * to use the higher of the two possible segmentIndexes
-	 */
-	void addIntersection(algorithm::LineIntersector *li,
-			unsigned int segmentIndex,
-			int geomIndex, int intIndex);
+    /** \brief
+     * Add an SegmentNode for intersection intIndex.
+     *
+     * An intersection that falls exactly on a vertex
+     * of the SegmentString is normalized
+     * to use the higher of the two possible segmentIndexes
+     */
+    void addIntersection(algorithm::LineIntersector* li,
+                         std::size_t segmentIndex,
+                         std::size_t geomIndex, std::size_t intIndex);
 
-	/** \brief
-	 * Add an SegmentNode for intersection intIndex.
-	 *
-	 * An intersection that falls exactly on a vertex of the
-	 * edge is normalized
-	 * to use the higher of the two possible segmentIndexes
-	 */
-	void addIntersection(const geom::Coordinate& intPt,
-			unsigned int segmentIndex);
+    /** \brief
+     * Add an SegmentNode for intersection intIndex.
+     *
+     * An intersection that falls exactly on a vertex of the
+     * edge is normalized
+     * to use the higher of the two possible segmentIndexes
+     */
+    void addIntersection(const geom::Coordinate& intPt,
+                         std::size_t segmentIndex);
 
 
 private:
 
-	SegmentNodeList nodeList;
+    SegmentNodeList nodeList;
 
-	geom::CoordinateSequence *pts;
+    std::unique_ptr<geom::CoordinateSequence> pts;
 
-	static int safeOctant(const geom::Coordinate& p0, const geom::Coordinate& p1);
+    static int safeOctant(const geom::Coordinate& p0, const geom::Coordinate& p1);
 
 };
 
@@ -211,6 +186,10 @@ private:
 
 #ifdef _MSC_VER
 #pragma warning(pop)
+#endif
+
+#ifdef GEOS_INLINE
+#include "geos/noding/NodedSegmentString.inl"
 #endif
 
 #endif // GEOS_NODING_NODEDSEGMENTSTRING_H
